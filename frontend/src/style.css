@@ -1,0 +1,394 @@
+/* src/style.css */
+
+/* ---------------------------------------- */
+/* Variables CSS (Opcional, pero útil)    */
+/* ---------------------------------------- */
+:root {
+    --color-primary-light: #a855f7;
+    /* purple-500 */
+    --color-primary-dark: #9333ea;
+    /* purple-600 */
+    --color-secondary-light: #ec4899;
+    /* pink-500 */
+    --color-secondary-dark: #db2777;
+    /* pink-600 */
+
+    --color-text-light: #1f2937;
+    /* slate-800 (para fondos claros) */
+    --color-text-dark: #e2e8f0;
+    /* slate-200 (para fondos oscuros) */
+    --color-text-muted-light: #64748b;
+    /* slate-500 */
+    --color-text-muted-dark: #94a3b8;
+    /* slate-400 */
+
+    --bg-light: #ffffff;
+    --bg-dark: #1e293b;
+    /* slate-800 */
+    --bg-input-light: #f9fafb;
+    /* slate-50 */
+    --bg-input-dark: #334155;
+    /* slate-700 */
+
+    --border-light: #d1d5db;
+    /* slate-300 */
+    --border-dark: #475569;
+    /* slate-600 */
+
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-color-strong: rgba(0, 0, 0, 0.15);
+
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* ---------------------------------------- */
+/* Estilos Globales y Reseteo               */
+/* ---------------------------------------- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: var(--font-sans);
+}
+
+body {
+    margin: 0;
+    font-family: inherit;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+    display: block;
+    max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+    font: inherit;
+    margin: 0;
+}
+
+/* ---------------------------------------- */
+/* Contenedor Principal de la Aplicación    */
+/* ---------------------------------------- */
+.app-container {
+    min-height: 100vh;
+    background-image: linear-gradient(to bottom right, #0f172a, #334155);
+    /* from-slate-900 to-slate-700 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    /* p-4 */
+}
+
+/* ---------------------------------------- */
+/* Tarjeta del Formulario                   */
+/* ---------------------------------------- */
+.form-card {
+    width: 100%;
+    max-width: 32rem;
+    /* max-w-lg */
+    background-color: var(--bg-light);
+    box-shadow: 0 20px 25px -5px var(--shadow-color-strong), 0 10px 10px -5px var(--shadow-color);
+    /* shadow-2xl */
+    border-radius: 0.75rem;
+    /* rounded-xl */
+    padding: 2rem;
+    /* p-8 */
+    transition: transform 0.5s ease-in-out;
+}
+
+.form-card:hover {
+    transform: scale(1.02);
+    /* hover:scale-105 (ajustado para ser sutil) */
+}
+
+/* ---------------------------------------- */
+/* Título del Formulario                    */
+/* ---------------------------------------- */
+.form-title {
+    font-size: 2.25rem;
+    /* text-4xl */
+    font-weight: 700;
+    /* font-bold */
+    text-align: center;
+    margin-bottom: 2rem;
+    /* mb-8 */
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+    background-image: linear-gradient(to right, var(--color-primary-light), var(--color-secondary-light));
+}
+
+/* ---------------------------------------- */
+/* Área de Mensajes                         */
+/* ---------------------------------------- */
+.message-area {
+    padding: 1rem;
+    /* p-4 */
+    margin-bottom: 1rem;
+    /* mb-4 */
+    font-size: 0.875rem;
+    /* text-sm */
+    border-radius: 0.5rem;
+    /* rounded-lg */
+    border: 1px solid transparent;
+}
+
+.message-area.hidden {
+    display: none;
+}
+
+.message-area .message-prefix {
+    font-weight: 500;
+    /* font-medium */
+}
+
+.message-area.message-exito {
+    background-color: #d1fae5;
+    /* bg-green-100 */
+    color: #065f46;
+    /* text-green-700 */
+    border-color: #a7f3d0;
+}
+
+.message-area.message-error {
+    background-color: #fee2e2;
+    /* bg-red-100 */
+    color: #991b1b;
+    /* text-red-700 */
+    border-color: #fecaca;
+}
+
+.message-area.message-info {
+    background-color: #dbeafe;
+    /* bg-blue-100 */
+    color: #1e40af;
+    /* text-blue-700 */
+    border-color: #bfdbfe;
+}
+
+/* ---------------------------------------- */
+/* Formulario y sus Elementos               */
+/* ---------------------------------------- */
+.product-form .form-group {
+    margin-bottom: 1.5rem;
+    /* space-y-6 (aplicado al div padre de cada input) */
+}
+
+.product-form .form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    /* text-sm */
+    font-weight: 500;
+    /* font-medium */
+    color: #4b5563;
+    /* text-slate-700 (ajustado, era text-slate-700) */
+    margin-bottom: 0.25rem;
+    /* mb-1 */
+}
+
+.form-input,
+.form-select {
+    margin-top: 0.25rem;
+    /* mt-1 */
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    /* px-4 py-3 */
+    background-color: var(--bg-input-light);
+    border: 1px solid var(--border-light);
+    border-radius: 0.5rem;
+    /* rounded-lg */
+    box-shadow: 0 1px 2px 0 var(--shadow-color);
+    /* shadow-sm */
+    font-size: 0.875rem;
+    /* sm:text-sm */
+    color: var(--color-text-light);
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-input::placeholder {
+    color: #9ca3af;
+    /* placeholder-slate-400 (ajustado) */
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: 2px solid transparent;
+    /* focus:outline-none */
+    outline-offset: 2px;
+    border-color: var(--color-primary-light);
+    /* focus:border-purple-500 */
+    box-shadow: 0 0 0 2px var(--color-primary-light);
+    /* focus:ring-2 focus:ring-purple-500 */
+}
+
+/* ---------------------------------------- */
+/* Botón de Envío                           */
+/* ---------------------------------------- */
+.submit-button {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Para alinear el spinner verticalmente */
+    padding: 0.75rem 1rem;
+    /* py-3 px-4 */
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    /* rounded-lg */
+    box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -1px var(--shadow-color);
+    /* shadow-lg */
+    font-size: 0.875rem;
+    /* text-sm */
+    font-weight: 500;
+    /* font-medium */
+    color: white;
+    background-image: linear-gradient(to right, var(--color-primary-dark), var(--color-secondary-dark));
+    /* bg-gradient-to-r from-purple-600 to-pink-600 */
+    transition: background-image 0.3s ease-in-out, transform 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.submit-button:hover {
+    background-image: linear-gradient(to right, #7e22ce, #c026d3);
+    /* hover:from-purple-700 hover:to-pink-700 (versiones más claras o intensas) */
+    transform: scale(1.02);
+    /* hover:scale-105 (ajustado) */
+}
+
+.submit-button:active {
+    transform: scale(0.98);
+    /* active:scale-95 (ajustado) */
+}
+
+.submit-button:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--bg-light), 0 0 0 4px var(--color-primary-light);
+    /* focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 */
+}
+
+.submit-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Spinner para el botón */
+.spinner {
+    animation: spin 1s linear infinite;
+    margin-left: -0.25rem;
+    /* -ml-1 */
+    margin-right: 0.75rem;
+    /* mr-3 */
+    height: 1.25rem;
+    /* h-5 */
+    width: 1.25rem;
+    /* w-5 */
+    /* El color del spinner se hereda del texto del botón (blanco) */
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ---------------------------------------- */
+/* Pie de Página del Formulario             */
+/* ---------------------------------------- */
+.form-footer {
+    font-size: 0.75rem;
+    /* text-xs */
+    text-align: center;
+    color: var(--color-text-muted-light);
+    margin-top: 2rem;
+    /* mt-8 */
+}
+
+/* ---------------------------------------- */
+/* Modo Oscuro (Prefiere el esquema del SO) */
+/* ---------------------------------------- */
+@media (prefers-color-scheme: dark) {
+    .form-card {
+        background-color: var(--bg-dark);
+    }
+
+    .form-title {
+        background-image: linear-gradient(to right, #c084fc, #f472b6);
+        /* dark:from-purple-400 dark:to-pink-400 */
+    }
+
+    .message-area.message-exito {
+        background-color: #047857;
+        /* dark:bg-green-200 (ajustado para más contraste) */
+        color: #d1fae5;
+        /* dark:text-green-800 (ajustado para más contraste) */
+        border-color: #059669;
+    }
+
+    .message-area.message-error {
+        background-color: #b91c1c;
+        /* dark:bg-red-200 (ajustado) */
+        color: #fee2e2;
+        /* dark:text-red-800 (ajustado) */
+        border-color: #dc2626;
+    }
+
+    .message-area.message-info {
+        background-color: #1d4ed8;
+        /* dark:bg-blue-200 (ajustado) */
+        color: #dbeafe;
+        /* dark:text-blue-800 (ajustado) */
+        border-color: #2563eb;
+    }
+
+    .form-label {
+        color: #cbd5e1;
+        /* dark:text-slate-300 */
+    }
+
+    .form-input,
+    .form-select {
+        background-color: var(--bg-input-dark);
+        border-color: var(--border-dark);
+        color: var(--color-text-dark);
+    }
+
+    .form-input::placeholder {
+        color: #64748b;
+        /* dark:placeholder-slate-500 (ajustado) */
+    }
+
+    .submit-button:focus {
+        /* Ajuste para el offset en modo oscuro */
+        box-shadow: 0 0 0 2px var(--bg-dark), 0 0 0 4px var(--color-primary-light);
+        /* dark:focus:ring-offset-slate-800 */
+    }
+
+    .form-footer {
+        color: var(--color-text-muted-dark);
+    }
+}
