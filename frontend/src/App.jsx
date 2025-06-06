@@ -3,6 +3,9 @@ import { useState } from 'react';
 // Si no lo está, puedes añadirlo siguiendo la guía de instalación de Tailwind.
 // import './style.css'; // Puedes mantener tu CSS si es necesario para otros estilos.
 
+// Importar componentes de Material UI
+import { Container, Box, Typography, TextField, Button, Select, MenuItem, FormControl, InputLabel, Alert, CircularProgress } from '@mui/material';
+
 function App() {
   const [producto, setProducto] = useState({
     nombre: '',
@@ -48,7 +51,7 @@ function App() {
       });
 
       if (res.ok) {
-        setMensaje({ texto: 'Producto guardado correctamente.', tipo: 'exito' });
+        setMensaje({ texto: 'Producto guardado correctamente.', tipo: 'success' }); // Cambiado a 'success' para Material UI Alert
         setProducto({ nombre: '', precio: '', talla: '', color: '' }); // Limpiar formulario
       } else {
         const errorData = await res.json().catch(() => ({ message: 'Error desconocido al guardar el producto.' }));
@@ -60,144 +63,127 @@ function App() {
     }
   };
 
-  // Clases de Tailwind para los mensajes
-  const getMensajeClasses = () => {
-    if (!mensaje.texto) return 'hidden';
-    let baseClasses = 'p-4 mb-4 text-sm rounded-lg';
-    if (mensaje.tipo === 'exito') {
-      return `${baseClasses} bg-green-100 text-green-700 dark:bg-green-200 dark:text-green-800`;
-    } else if (mensaje.tipo === 'error') {
-      return `${baseClasses} bg-red-100 text-red-700 dark:bg-red-200 dark:text-red-800`;
-    } else if (mensaje.tipo === 'info') {
-      return `${baseClasses} bg-blue-100 text-blue-700 dark:bg-blue-200 dark:text-blue-800`;
-    }
-    return 'hidden';
-  };
+  // Clases de Tailwind para los mensajes - Ya no necesarias con Material UI Alert
+  // const getMensajeClasses = () => {
+  //   if (!mensaje.texto) return 'hidden';
+  //   let baseClasses = 'p-4 mb-4 text-sm rounded-lg';
+  //   if (mensaje.tipo === 'exito') {
+  //     return `${baseClasses} bg-green-100 text-green-700 dark:bg-green-200 dark:text-green-800`;
+  //   } else if (mensaje.tipo === 'error') {
+  //     return `${baseClasses} bg-red-100 text-red-700 dark:bg-red-200 dark:text-red-800`;
+  //   } else if (mensaje.tipo === 'info') {
+  //     return `${baseClasses} bg-blue-100 text-blue-700 dark:bg-blue-200 dark:text-blue-800`;
+  //   }
+  //   return 'hidden';
+  // };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700 flex flex-col items-center justify-center p-4 font-sans">
-      <div className="w-full max-w-lg bg-white dark:bg-slate-800 shadow-2xl rounded-xl p-8 space-y-6 transform transition-all duration-500 hover:scale-105">
-        <h1 className="text-4xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500 dark:from-purple-400 dark:to-pink-400 mb-8">
+    // Reemplazado el div principal con Container y Box de Material UI
+    <Container maxWidth="sm">
+      <Box
+        sx={{
+          marginTop: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          padding: 4,
+          boxShadow: 3,
+          borderRadius: 2,
+          bgcolor: 'background.paper',
+        }}
+      >
+        {/* Título */}
+        <Typography component="h1" variant="h4" gutterBottom>
           Registrar Nuevo Producto
-        </h1>
+        </Typography>
 
         {/* Área de Mensajes */}
         {mensaje.texto && (
-          <div
-            id="mensaje-usuario"
-            className={getMensajeClasses()}
-            role="alert"
-          >
-            <span className="font-medium">{mensaje.tipo === 'exito' ? '¡Éxito!' : mensaje.tipo === 'error' ? 'Error:' : 'Info:'}</span> {mensaje.texto}
-          </div>
+          <Alert severity={mensaje.tipo} sx={{ width: '100%', mb: 2 }}>
+            {mensaje.texto}
+          </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1, width: '100%' }}>
           {/* Campo Nombre */}
-          <div>
-            <label htmlFor="nombre" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Nombre del Producto
-            </label>
-            <input
-              type="text"
-              name="nombre"
-              id="nombre"
-              value={producto.nombre}
-              onChange={handleChange}
-              placeholder="Ej: Camiseta ProFit"
-              className="mt-1 block w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 transition duration-300"
-            />
-          </div>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="nombre"
+            label="Nombre del Producto"
+            name="nombre"
+            autoComplete="name"
+            value={producto.nombre}
+            onChange={handleChange}
+            autoFocus
+          />
 
           {/* Campo Precio */}
-          <div>
-            <label htmlFor="precio" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Precio (COP)
-            </label>
-            <input
-              type="number"
-              name="precio"
-              id="precio"
-              value={producto.precio}
-              onChange={handleChange}
-              placeholder="Ej: 75000"
-              min="0"
-              step="0.01"
-              className="mt-1 block w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 transition duration-300"
-            />
-          </div>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="precio"
+            label="Precio (COP)"
+            name="precio"
+            type="number"
+            value={producto.precio}
+            onChange={handleChange}
+            inputProps={{ min: "0", step: "0.01" }}
+          />
 
           {/* Campo Talla */}
-          <div>
-            <label htmlFor="talla" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Talla
-            </label>
-            <select
-              name="talla"
+          <FormControl fullWidth margin="normal" required>
+            <InputLabel id="talla-label">Talla</InputLabel>
+            <Select
+              labelId="talla-label"
               id="talla"
+              name="talla"
               value={producto.talla}
+              label="Talla"
               onChange={handleChange}
-              className="mt-1 block w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm text-slate-900 dark:text-slate-100 transition duration-300"
             >
-              <option value="">Selecciona una talla</option>
-              <option value="XS">XS</option>
-              <option value="S">S</option>
-              <option value="M">M</option>
-              <option value="L">L</option>
-              <option value="XL">XL</option>
-              <option value="XXL">XXL</option>
-            </select>
-          </div>
+              <MenuItem value="">Selecciona una talla</MenuItem>
+              <MenuItem value="XS">XS</MenuItem>
+              <MenuItem value="S">S</MenuItem>
+              <MenuItem value="M">M</MenuItem>
+              <MenuItem value="L">L</MenuItem>
+              <MenuItem value="XL">XL</MenuItem>
+              <MenuItem value="XXL">XXL</MenuItem>
+            </Select>
+          </FormControl>
 
           {/* Campo Color */}
-          <div>
-            <label htmlFor="color" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Color
-            </label>
-            <input
-              type="text"
-              name="color"
-              id="color"
-              value={producto.color}
-              onChange={handleChange}
-              placeholder="Ej: Azul Marino"
-              className="mt-1 block w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 transition duration-300"
-            />
-            {/* Alternativa con input type color y selector básico */}
-            {/* <div className="flex items-center space-x-2 mt-2">
-              <input
-                type="color"
-                name="colorPicker" // Nombre diferente para no interferir directamente con el estado 'color' si quieres manejarlo separado
-                id="colorPicker"
-                onChange={(e) => setProducto(prev => ({...prev, color: e.target.value}))} // Actualiza el color directamente
-                className="h-10 w-10 rounded-md border border-slate-300 dark:border-slate-600 cursor-pointer"
-              />
-              <span className="text-sm text-slate-600 dark:text-slate-400">O elige un color</span>
-            </div>
-            */}
-          </div>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="color"
+            label="Color"
+            name="color"
+            value={producto.color}
+            onChange={handleChange}
+            placeholder="Ej: Azul Marino"
+          />
 
           {/* Botón de Envío */}
-          <div>
-            <button
-              type="submit"
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-slate-800 transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95"
-              disabled={mensaje.tipo === 'info'} // Deshabilitar mientras se guarda
-            >
-              {mensaje.tipo === 'info' ? (
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              ) : 'Guardar Producto'}
-            </button>
-          </div>
-        </form>
-        <p className="text-xs text-center text-slate-500 dark:text-slate-400 mt-8">
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            disabled={mensaje.tipo === 'info'}
+          >
+            {mensaje.tipo === 'info' ? <CircularProgress size={24} color="inherit" /> : 'Guardar Producto'}
+          </Button>
+        </Box>
+
+        <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 4 }}>
           Gestiona tus productos de forma eficiente.
-        </p>
-      </div>
-    </div>
+        </Typography>
+      </Box>
+    </Container>
   );
 }
 
