@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 // Asegúrate de que Tailwind CSS esté configurado en tu proyecto.
 // Si no lo está, puedes añadirlo siguiendo la guía de instalación de Tailwind.
 // import './style.css'; // Puedes mantener tu CSS si es necesario para otros estilos.
 
 // Importar componentes de Material UI
-import { Container, Box, Typography, TextField, Button, Select, MenuItem, FormControl, InputLabel, Alert, CircularProgress } from '@mui/material';
+import { Container, Box, Typography, TextField, Button, Select, MenuItem, FormControl, InputLabel, Alert, CircularProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
 function App() {
   const [producto, setProducto] = useState({
@@ -15,6 +15,31 @@ function App() {
   });
 
   const [mensaje, setMensaje] = useState({ texto: '', tipo: '' }); // Para mostrar mensajes de éxito/error
+  const [productos, setProductos] = useState([]); // Estado para almacenar la lista de productos
+  const [loading, setLoading] = useState(false); // Estado para mostrar indicador de carga
+  const [editando, setEditando] = useState(false);
+  const [idEditando, setIdEditando] = useState(null);
+
+  // Función para obtener la lista de productos del backend
+  const fetchProductos = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/api/productos');
+      if (response.ok) {
+        const data = await response.json();
+        setProductos(data);
+      } else {
+        setMensaje({ texto: 'Error al cargar los productos.', tipo: 'error' });
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setMensaje({ texto: 'Error de conexión con el backend.', tipo: 'error' });
+    }
+  };
+
+  // Efecto para cargar los productos cuando el componente se monta
+  useEffect(() => {
+    fetchProductos();
+  }, []); // El array vacío asegura que se ejecute solo una vez al montar
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,86 +51,112 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMensaje({ texto: '', tipo: '' }); // Limpiar mensaje anterior
-
-    // Validación simple
-    if (!producto.nombre || !producto.precio || !producto.talla || !producto.color) {
-      setMensaje({ texto: 'Todos los campos son obligatorios.', tipo: 'error' });
-      return;
-    }
-    if (isNaN(parseFloat(producto.precio)) || parseFloat(producto.precio) <= 0) {
-      setMensaje({ texto: 'El precio debe ser un número positivo.', tipo: 'error' });
-      return;
-    }
+    setLoading(true);
+    setMensaje({ texto: '', tipo: '' });
 
     try {
-      // Mostramos un mensaje de carga
-      setMensaje({ texto: 'Guardando producto...', tipo: 'info' });
+      const url = editando 
+        ? `http://localhost:8080/api/productos/${idEditando}`
+        : 'http://localhost:8080/api/productos';
+      
+      const method = editando ? 'PUT' : 'POST';
 
-      const res = await fetch('http://localhost:8080/api/productos', {
-        method: 'POST',
+      const response = await fetch(url, {
+        method: method,
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(producto)
+        body: JSON.stringify(producto),
       });
 
-      if (res.ok) {
-        setMensaje({ texto: 'Producto guardado correctamente.', tipo: 'success' }); // Cambiado a 'success' para Material UI Alert
-        setProducto({ nombre: '', precio: '', talla: '', color: '' }); // Limpiar formulario
+      if (response.ok) {
+        setMensaje({ 
+          texto: editando ? 'Producto actualizado con éxito!' : 'Producto agregado con éxito!', 
+          tipo: 'success' 
+        });
+        setProducto({ nombre: '', precio: '', talla: '', color: '' });
+        setEditando(false);
+        setIdEditando(null);
+        fetchProductos();
       } else {
-        const errorData = await res.json().catch(() => ({ message: 'Error desconocido al guardar el producto.' }));
-        setMensaje({ texto: `Error al guardar el producto: ${errorData.message || res.statusText}`, tipo: 'error' });
+        const errorData = await response.json();
+        setMensaje({ 
+          texto: `Error al ${editando ? 'actualizar' : 'agregar'} el producto: ${errorData.message || response.statusText}`, 
+          tipo: 'error' 
+        });
       }
-    } catch (err) {
-      console.error('Error de conexión:', err);
-      setMensaje({ texto: 'Error de conexión con el servidor. Inténtalo más tarde.', tipo: 'error' });
+    } catch (error) {
+      console.error('Error:', error);
+      setMensaje({ 
+        texto: `Error de conexión al ${editando ? 'actualizar' : 'agregar'} producto.`, 
+        tipo: 'error' 
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Clases de Tailwind para los mensajes - Ya no necesarias con Material UI Alert
-  // const getMensajeClasses = () => {
-  //   if (!mensaje.texto) return 'hidden';
-  //   let baseClasses = 'p-4 mb-4 text-sm rounded-lg';
-  //   if (mensaje.tipo === 'exito') {
-  //     return `${baseClasses} bg-green-100 text-green-700 dark:bg-green-200 dark:text-green-800`;
-  //   } else if (mensaje.tipo === 'error') {
-  //     return `${baseClasses} bg-red-100 text-red-700 dark:bg-red-200 dark:text-red-800`;
-  //   } else if (mensaje.tipo === 'info') {
-  //     return `${baseClasses} bg-blue-100 text-blue-700 dark:bg-blue-200 dark:text-blue-800`;
-  //   }
-  //   return 'hidden';
-  // };
+  // Función para manejar la eliminación de un producto
+  const handleDelete = async (id) => {
+    setLoading(true);
+    setMensaje({ texto: '', tipo: '' });
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/productos/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setMensaje({ texto: 'Producto eliminado con éxito!', tipo: 'success' });
+        fetchProductos(); // Actualizar la lista de productos
+      } else {
+        const errorData = await response.json();
+        setMensaje({ texto: `Error al eliminar el producto: ${errorData.message || response.statusText}`, tipo: 'error' });
+      }
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      setMensaje({ texto: 'Error de conexión al eliminar producto.', tipo: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (producto) => {
+    setProducto({
+      nombre: producto.nombre,
+      precio: producto.precio,
+      talla: producto.talla,
+      color: producto.color
+    });
+    setEditando(true);
+    setIdEditando(producto.id);
+  };
+
+  const handleCancelEdit = () => {
+    setProducto({ nombre: '', precio: '', talla: '', color: '' });
+    setEditando(false);
+    setIdEditando(null);
+  };
 
   return (
-    // Reemplazado el div principal con Container y Box de Material UI
-    <Container maxWidth="sm">
+    <Container component="main" maxWidth="md">
       <Box
         sx={{
           marginTop: 8,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          padding: 4,
-          boxShadow: 3,
-          borderRadius: 2,
-          bgcolor: 'background.paper',
         }}
       >
-        {/* Título */}
-        <Typography component="h1" variant="h4" gutterBottom>
-          Registrar Nuevo Producto
+        <Typography component="h1" variant="h5">
+          {editando ? 'Editar Producto' : 'Agregar Nuevo Producto'}
         </Typography>
-
-        {/* Área de Mensajes */}
         {mensaje.texto && (
-          <Alert severity={mensaje.tipo} sx={{ width: '100%', mb: 2 }}>
+          <Alert severity={mensaje.tipo} sx={{ mt: 2, width: '100%' }}>
             {mensaje.texto}
           </Alert>
         )}
-
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1, width: '100%' }}>
-          {/* Campo Nombre */}
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3, width: '100%' }}>
           <TextField
             margin="normal"
             required
@@ -113,27 +164,23 @@ function App() {
             id="nombre"
             label="Nombre del Producto"
             name="nombre"
-            autoComplete="name"
+            autoComplete="nombre"
+            autoFocus
             value={producto.nombre}
             onChange={handleChange}
-            autoFocus
           />
-
-          {/* Campo Precio */}
           <TextField
             margin="normal"
             required
             fullWidth
-            id="precio"
-            label="Precio (COP)"
             name="precio"
+            label="Precio"
             type="number"
+            id="precio"
+            autoComplete="precio"
             value={producto.precio}
             onChange={handleChange}
-            inputProps={{ min: "0", step: "0.01" }}
           />
-
-          {/* Campo Talla */}
           <FormControl fullWidth margin="normal" required>
             <InputLabel id="talla-label">Talla</InputLabel>
             <Select
@@ -144,17 +191,12 @@ function App() {
               label="Talla"
               onChange={handleChange}
             >
-              <MenuItem value="">Selecciona una talla</MenuItem>
-              <MenuItem value="XS">XS</MenuItem>
               <MenuItem value="S">S</MenuItem>
               <MenuItem value="M">M</MenuItem>
               <MenuItem value="L">L</MenuItem>
               <MenuItem value="XL">XL</MenuItem>
-              <MenuItem value="XXL">XXL</MenuItem>
             </Select>
           </FormControl>
-
-          {/* Campo Color */}
           <TextField
             margin="normal"
             required
@@ -162,26 +204,85 @@ function App() {
             id="color"
             label="Color"
             name="color"
+            autoComplete="color"
             value={producto.color}
             onChange={handleChange}
-            placeholder="Ej: Azul Marino"
           />
-
-          {/* Botón de Envío */}
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-            disabled={mensaje.tipo === 'info'}
-          >
-            {mensaje.tipo === 'info' ? <CircularProgress size={24} color="inherit" /> : 'Guardar Producto'}
-          </Button>
+          <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} /> : (editando ? 'Actualizar Producto' : 'Agregar Producto')}
+            </Button>
+            {editando && (
+              <Button
+                fullWidth
+                variant="outlined"
+                color="secondary"
+                onClick={handleCancelEdit}
+                disabled={loading}
+              >
+                Cancelar
+              </Button>
+            )}
+          </Box>
         </Box>
 
-        <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 4 }}>
-          Gestiona tus productos de forma eficiente.
+        <Typography component="h2" variant="h6" sx={{ mt: 4, mb: 2 }}>
+          Lista de Productos
         </Typography>
+        <TableContainer component={Paper} sx={{ width: '100%' }}>
+          <Table aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Nombre</TableCell>
+                <TableCell align="right">Precio</TableCell>
+                <TableCell align="right">Talla</TableCell>
+                <TableCell align="right">Color</TableCell>
+                <TableCell align="right">Acciones</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {productos.map((prod) => (
+                <TableRow
+                  key={prod.id}
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row">
+                    {prod.nombre}
+                  </TableCell>
+                  <TableCell align="right">{prod.precio}</TableCell>
+                  <TableCell align="right">{prod.talla}</TableCell>
+                  <TableCell align="right">{prod.color}</TableCell>
+                  <TableCell align="right">
+                    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleEdit(prod)}
+                        disabled={loading}
+                      >
+                        Editar
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="error"
+                        onClick={() => handleDelete(prod.id)}
+                        disabled={loading}
+                      >
+                        Eliminar
+                      </Button>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
       </Box>
     </Container>
   );
